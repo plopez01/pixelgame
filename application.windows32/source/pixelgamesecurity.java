@@ -14,7 +14,7 @@ import java.io.InputStream;
 import java.io.OutputStream; 
 import java.io.IOException; 
 
-public class pixelgame extends PApplet {
+public class pixelgamesecurity extends PApplet {
 
 
 
@@ -24,6 +24,15 @@ SoundFile menusel;
 SoundFile diesnd;
 
 Pixel[] objects = new Pixel[600];
+
+int[] warnpos = new int[50];
+
+int warnlen = 0;
+
+boolean lazer = false;
+
+int lazerintensity = 255;
+
 
 Player p;
 PFont ufont;
@@ -45,13 +54,21 @@ long currentime = 0;
 
 int phase = 0;
 
+int maxlives = 0;
+
 int rate = 300;
-int vel = 10;
+int vel = 10;//10
 int size = 20;
 
 int[] constrain = new int[2];
 
 int bgcolor = 0;
+
+int pcolorR = 255;
+
+int pcolorG = 255;
+
+int pcolorB = 255;
 
 int barrierspos = 0;
 
@@ -66,6 +83,8 @@ boolean dead = false;;
 boolean menu = true;
 
 boolean gradient = false;
+
+boolean rgbsplit = false;
 
 int parpadeo = 0;
 int parpadeocount = 0;
@@ -100,6 +119,9 @@ public void setup(){
   lastime[4] = 0;
   lastime[5] = 0;
   lastime[6] = 0;
+  lastime[7] = 0;
+  lastime[8] = 0;
+  lastime[9] = 0;
   
   gradientBuffer[0] = 0;
   gradientBuffer[1] = 0;
@@ -111,6 +133,8 @@ public void setup(){
   menusnd = new SoundFile(this, "menusnd.wav");
   menusel = new SoundFile(this, "menusel.wav");
   diesnd = new SoundFile(this, "diesnd.wav");
+  
+  
   p = new Player(width/2, height/2, 10, 4, color(72, 229, 255));
   //music.play();
 }
@@ -123,7 +147,8 @@ public void draw(){
      int newc = lerpColor(c1, c2, n);
      stroke(newc);
      line(0, y, width, y);
-    } 
+    }
+    noStroke();
   }
   if(dead){
     objectnum = 0;
@@ -144,7 +169,12 @@ public void draw(){
             size = 20;
             phase = 0;
             bgcolor = 0;
+            warnlen = 0;
+            rgbsplit = false;
+            lazer = false;
             
+            lazerintensity = 255;
+
             barrierspos = 0;
             
             maindirection = 0;
@@ -162,6 +192,17 @@ public void draw(){
             lastime[4] = 0;
             lastime[5] = 0;
             lastime[6] = 0;
+            lastime[7] = 0;
+            lastime[8] = 0;
+            lastime[9] = 0;
+            
+            pcolorR = 255;
+
+            pcolorG = 255;
+          
+            pcolorB = 255;
+
+            
             p.pcolor = color(72, 229, 255);
             for(int i = 0; i<objects.length; i++){
               if(objects[i] != null){
@@ -180,33 +221,34 @@ public void draw(){
     fill(255);
     rect(width/2-165, height/2+cursorpos, 15, 10);
     fill(0, 255, 0);
-    text("Easy - 10 Hits", width/2-140, height/2-80);
+    text("Easy - 15 Hits", width/2-140, height/2-80);
     fill(0, 255, 255);
-    text("Normal - 5 Hits", width/2-140, height/2-30);
+    text("Normal - 10 Hits", width/2-140, height/2-30);
     fill(255, 0, 0);
-    text("Hard - 2 Hits", width/2-140, height/2+30);
+    text("Hard - 5 Hits", width/2-140, height/2+30);
     fill(200, 0, 0);
     text("No hit - 0 Hits", width/2-140, height/2+80);
+    
     
     switch(selmenu){
      case 0:
      cursorpos = -95;
-     lives = 10;
+     maxlives = 15;
      break;
      
      case 1:
      cursorpos = -45;
-     lives = 5;
+     maxlives = 10;
      break;
      
      case 2:
      cursorpos = 12;
-     lives = 2;
+     maxlives = 5;
      break;
      
      case 3:
      cursorpos = 65;
-     lives = 0;
+     maxlives = 1;
      break;
     }
     
@@ -226,6 +268,7 @@ public void draw(){
     if(selmenu < 0) selmenu = 3;
     
     if(keys[4]){
+      lives = maxlives;
       menu = false;
       menusel.play();
       music.play();
@@ -236,7 +279,6 @@ public void draw(){
   }
 
   currentime = millis()-startime+1700;
-
 
   if(currentime > 10000 && phase == 0){
     phase = 1;
@@ -281,13 +323,53 @@ public void draw(){
     phase = 18;
    }
    
-  if(currentime > 136000 && phase == 18){
+  if(currentime > 135900 && phase == 18){
     phase = 19;
   }
   
   if(currentime > 142000 && phase == 19){
     phase = 20;
   }
+  
+  if(currentime > 155000 && phase == 20){
+    phase = 21;
+  }
+  if(currentime > 193900 && phase == 23){
+    rate = 10000;
+    size = 0;
+    try{
+        for(int i = 0; i<objects.length; i++){
+          if(objects[i] != null){
+            objects[i].sizex = 0;
+            objects[i].sizey = 0;
+          }
+          
+        }
+    }catch(NullPointerException e){
+      println(e);
+    }
+  }
+  if(currentime > 196000 && phase == 23){
+    phase = 24;
+  }
+  
+  if(currentime > 211500 && phase == 24){
+    phase = 25;
+  }
+  
+  if(currentime > 233500 && phase == 28){
+    phase = 29;
+  }
+  
+  
+  /*if(currentime > 238000 && phase == 30){
+    phase = 31;
+  }*/
+  
+  if(currentime > 243000 && phase == 31){
+    phase = 29;
+  }
+  
   
   
   //Progression LVL1
@@ -296,6 +378,7 @@ public void draw(){
     switch(phase){
       case 1:
       if(rate > 100) rate-=1;
+
        
        break;
        case 2:
@@ -333,20 +416,30 @@ public void draw(){
       phase = 6;
       break;
       case 8:
-      objects[objectnum] = new Pixel(barrierspos, -80, 20, size, size+80, color(255,255,255), true, 0);
+      objects[objectnum] = new Pixel(barrierspos, -80, 20, size, size+80, color(255,255,255), true, 0, false);
       objectnum++;
-      objects[objectnum] = new Pixel(width-barrierspos, -80, 20, size, size+80, color(255,255,255), true, 0);
+      objects[objectnum] = new Pixel(width-barrierspos, -80, 20, size, size+80, color(255,255,255), true, 0, false);
       objectnum++;
-      objects[objectnum] = new Pixel(-80, barrierspos, 20, size+80, size, color(255,255,255), true, 2);
+      objects[objectnum] = new Pixel(-80, barrierspos, 20, size+80, size, color(255,255,255), true, 2, false);
       objectnum++;
-      objects[objectnum] = new Pixel(-80, height-barrierspos, 20, size+80, size, color(255,255,255), true, 2);
+      objects[objectnum] = new Pixel(-80, height-barrierspos, 20, size+80, size, color(255,255,255), true, 2, false);
       objectnum++;
+      
+      
       if(barrierspos < 200){
         barrierspos+=5;
         constrain[0]+=5;
         constrain[1]-=5;
         rate+=5;
+        
       }else{
+        if(currentime-lastime[7] > 200){
+          lastime[7] = currentime;
+          objects[objectnum] = new Pixel(-5, 0, 5, barrierspos+5, size-4, color(255,255,255), true, 0, false);
+          objectnum++;
+          objects[objectnum] = new Pixel(width-barrierspos, 0, 5, barrierspos+5, size-4, color(255,255,255), true, 0, false);
+          objectnum++;
+        }
         if(rate > 100){
          rate-=2;
         }
@@ -401,20 +494,25 @@ public void draw(){
       phase = 15;
       break;
       case 17:
+      lives = maxlives;
       rate = 300;
       vel = 10;
       size = 20;
+      rate-=1;
       println(rate);
       break;
       case 18:
-      if(vel < 15) vel++;
+      if(rate > 100) rate-=1;
       gradient = true;
       c2 = color(gradientBuffer[0], 0, 0);
       if(gradientBuffer[0] < 255) gradientBuffer[0]++;
       break;
       case 19:
-      vel = 5;
-      if(rate>1) rate-=2;
+      vel = 4;
+      if(rate>60) rate-=2;
+      if(pcolorR > 15) pcolorR-=5;
+      if(pcolorG > 15) pcolorG-=5;
+      if(pcolorB > 15) pcolorB-=5;
       c2 = color(gradientBuffer[0], 0, 0);
       if(gradientBuffer[0] > 2)gradientBuffer[0]-=2;
       break;
@@ -422,8 +520,141 @@ public void draw(){
       c2 = color(gradientBuffer[0], 0, 0);
       gradientBuffer[0]+=2;
       break;
-    } 
+      case 21:
+      if(pcolorR < 255) pcolorR+=15;
+      if(pcolorG < 255) pcolorG+=15;
+      if(pcolorB < 255) pcolorB+=15;
+      size = 15;
+      //rate = 120;
+      c2 = color(gradientBuffer[0], 0, 0);
+      if(gradientBuffer[0] > 2){
+        gradientBuffer[0]-=2;
+      }else{
+        gradient = false;
+        gradientBuffer[0] = 0;
+      }
+      maindirection = 3;
+      spawnpoint = width;
+      constrain[0]=0;
+      constrain[1]=height;
+      phase = 22;
+      break;
+      case 22:
+      maindirection = 0;
+      spawnpoint = 0;
+      constrain[0]=0;
+      constrain[1]=width;
+      if(currentime >= 175000){
+        phase = 23;
+      }else{
+       phase = 21; 
+      }
+      break;
+      case 23:
+      maindirection = 2;
+      spawnpoint = 0;
+      constrain[0]=0;
+      constrain[1]=height;
+      phase = 21;
+      break;
+      case 24:
+      maindirection = 0;
+      spawnpoint = 0;
+      constrain[0]=0;
+      constrain[1]=width;
+      size = 30;
+      rate = 100;
+      vel = 12;
+      if(currentime-lastime[7] > 200){
+        lastime[7] = currentime;
+        try{
+          for(int i = 0; i<objects.length; i++){
+            if(objects[i] != null){
+               
+                  objects[i].sizex = PApplet.parseInt(random(10, size));
+                  objects[i].sizey = PApplet.parseInt(random(10, size));
+                objects[i].pxcolor = color(PApplet.parseInt(random(0, 255)), PApplet.parseInt(random(0, 255)), PApplet.parseInt(random(0, 255)));
+            }
+            
+          }
+        }catch(NullPointerException e){
+          println(e);
+        }
+      }
+      
+      break;
+      case 25:
+      if(bgcolor < 199){
+       bgcolor+=100;
+      }else{
+       phase = 26;
+       
+      }
+      break;
+      case 26:
+      bgcolor-=20;
+      if(bgcolor < 100) phase = 27;
+      size = 15;
+      break;
+      case 27:
+      if(bgcolor < 199){
+       bgcolor+=50;
+      }else{
+       phase = 28;
+       size = 10;
+       rate = 40;
+      }
+      break;
+      case 28:
+      if(bgcolor > 0){
+        bgcolor-=10;
+      }else{
+        rgbsplit = true;
+      }
+      
+      try{
+          for(int i = 0; i<objects.length; i++){
+            if(objects[i] != null){
+              objects[i].sizex = PApplet.parseInt(random(size, size*2));
+              objects[i].sizey = PApplet.parseInt(random(size, size*2));
+            }
+            
+          }
+        }catch(NullPointerException e){
+          println(e);
+        }
+      break;
+      
+      case 29:
+      lazer = true;
+      rate = 100000;
+      size = 0;
+      if(warnlen < 47){
+          warnpos[warnlen] = PApplet.parseInt(random(height));
+          warnlen++;
+        }else{
+          if(lazerintensity == 255) lazerintensity = 0;
+          phase = 30;
+
+        }
+       break;
+       case 30:
+       if(lazerintensity < 255)lazerintensity+=15;
+       if(lazerintensity == 255) lazer=false;
+       if(!lazer) phase = 31;
+       break;
+       case 31:
+       lazerintensity = 255;
+       warnpos[warnlen] = 0;
+       if(warnlen > 0) warnlen--;
+        
+       rate = 100;
+       size = 30;
+       
+      } 
   }
+  
+
   
   if(currentime-lastime[0] > rate){
     lastime[0] = currentime;
@@ -433,13 +664,16 @@ public void draw(){
        
      }
      if(maindirection < 2){
-       objects[objectnum] = new Pixel(PApplet.parseInt(random(constrain[0], constrain[1])), spawnpoint, vel, size, size, color(255,255,255), true, maindirection);
+       objects[objectnum] = new Pixel(PApplet.parseInt(random(constrain[0], constrain[1])), spawnpoint, vel, size, size, color(pcolorR,pcolorB,pcolorG), true, maindirection, rgbsplit);
      }else{
-       objects[objectnum] = new Pixel(spawnpoint, PApplet.parseInt(random(constrain[0], constrain[1])), vel, size, size, color(255,255,255), true, maindirection); 
+       objects[objectnum] = new Pixel(spawnpoint, PApplet.parseInt(random(constrain[0], constrain[1])), vel, size, size, color(pcolorR,pcolorB,pcolorG), true, maindirection, rgbsplit); 
      }
      
      objectnum++;
   }
+  
+ 
+  
   
   if(parpadeocount > 11){
     parpadeo = 0;
@@ -477,6 +711,27 @@ public void draw(){
   }
   
   
+   
+
+   if(lazer){
+     for(int i = 0; i<warnpos.length; i++){
+      if(warnpos[i] != 0){
+        if(lazerintensity > 254) fill(200, 0, 0);
+        rect(0, warnpos[i], width, 10);
+        fill(52-lazerintensity,209-lazerintensity,235-lazerintensity);
+        rect(2, warnpos[i]+2, width-4, 6);
+        if(p.xpos+10 > 0 && p.xpos < width){
+          if(p.ypos+10 > warnpos[i] && p.ypos < warnpos[i]+10){
+            if(lazerintensity == 0) hitCheck();
+          }
+        }
+        
+      }
+      
+    }
+   }
+  
+
   fill(color(72, 229, 255));
   textFont(ufont);
   text("Time: "+((millis()-startime+1700)/1000), 10, 30);
@@ -541,13 +796,32 @@ class Player{
   }
 }
 
+public void hitCheck(){
+  
+  if(currentime-lastime[2] > 1000){
+    lastime[2] = currentime;
+    lives--;
+    if(lives > 0){
+      parpadeo = 1;
+      return;
+    }
+  }else{
+    return;
+  }
+  music.stop();
+  diesnd.play();
+  dead = true;
+  lastime[4] = currentime;
+          
+}
+
 class Pixel { 
   int xpos, ypos, mass, sizex, sizey, fallpos;
   int pxcolor;
   boolean gravity;
-
+  boolean rgbSplit;
   
-  Pixel (int x, int y, int m, int sx, int sy, int c, boolean g, int f) {  
+  Pixel (int x, int y, int m, int sx, int sy, int c, boolean g, int f, boolean rgb) {  
     xpos = x;
     ypos = y;
     mass = m;
@@ -556,30 +830,28 @@ class Pixel {
     sizex = sx;
     sizey = sy;
     fallpos = f;
+    rgbSplit = rgb;
   }
   
   public void update(int pxpos, int pypos){
+    
+    
+    if(rgbSplit){
+      fill(random(255), 0, 0);
+      rect(xpos+random(-8, 8), ypos+random(-8, 8), sizex, sizey);
+      fill(0, random(255), 0);
+      rect(xpos+random(-6, 6), ypos+random(-6,6), sizex, sizey);
+      fill(0, 0, random(255));
+      rect(xpos+random(-4,4), ypos+random(-4,4), sizex, sizey);
+    }
+    
     fill(pxcolor);
     rect(xpos, ypos, sizex, sizey);
     
-    if(pxpos > xpos-size && pxpos < xpos+size){
-      if(pypos > ypos-size && pypos < ypos+size){
-        //TODO: DIE
+    if(pxpos+10 > xpos && pxpos < xpos+sizex){
+      if(pypos+10 > ypos && pypos < ypos+sizey){
         
-          if(currentime-lastime[2] > 1000){
-            lastime[2] = currentime;
-            lives--;
-            if(lives > 0){
-              parpadeo = 1;
-              return;
-            }
-          }else{
-            return;
-          }
-          music.stop();
-          diesnd.play();
-          dead = true;
-          lastime[4] = currentime;
+          hitCheck();
         }
     }
     
@@ -644,7 +916,7 @@ public void keyReleased()
 }
   public void settings() {  size(640, 480);  noSmooth(); }
   static public void main(String[] passedArgs) {
-    String[] appletArgs = new String[] { "pixelgame" };
+    String[] appletArgs = new String[] { "pixelgamesecurity" };
     if (passedArgs != null) {
       PApplet.main(concat(appletArgs, passedArgs));
     } else {
